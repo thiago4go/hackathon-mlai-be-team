@@ -78,5 +78,12 @@ class NewStatusPipeline implements ShouldQueue
             Log::warning("NewStatusPipeline: Failed to dispatch StatusEntityLexer for status {$status->id}: " . $e->getMessage());
             throw $e;
         }
+
+        // Notify N8N webhook for AI agent processing
+        try {
+            \App\Services\N8nWebhookService::notifyNewPost($status);
+        } catch (\Exception $e) {
+            Log::warning("NewStatusPipeline: Failed to notify N8N webhook for status {$status->id}: " . $e->getMessage());
+        }
     }
 }
