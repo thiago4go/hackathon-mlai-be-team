@@ -50,8 +50,15 @@ RUN chown -R www-data:www-data /var/www/html \
 # Install composer dependencies
 RUN composer install --no-ansi --no-interaction --optimize-autoloader
 
+# Copy and set entrypoint
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Switch back to www-data user
 USER www-data
+
+# Set entrypoint
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 # Expose port 8080 (default for serversideup/php)
 EXPOSE 8080
