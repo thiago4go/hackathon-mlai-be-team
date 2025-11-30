@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     libvips42 \
     git \
     curl \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions using the built-in helper
@@ -31,6 +32,8 @@ RUN install-php-extensions \
     xml \
     zip \
     pdo_mysql \
+    pdo_pgsql \
+    pgsql \
     redis \
     vips \
     ffi

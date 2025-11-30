@@ -1,7 +1,5 @@
-version: '3.8'
-
 services:
-  # PostgreSQL for n8n
+  # PostgreSQL (shared)
   postgres:
     image: postgres:16-alpine
     container_name: mlai-postgres
@@ -9,9 +7,19 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: hackathon2025
-      POSTGRES_DB: n8n
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mlai-network
+
+  # Redis (for Pixelfed)
+  redis:
+    image: redis:7-alpine
+    container_name: mlai-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
     networks:
       - mlai-network
 
@@ -43,10 +51,33 @@ services:
     networks:
       - mlai-network
 
+  # Pixelfed (build from source)
+  pixelfed:
+    build:
+      context: ./digital-drive-license
+      dockerfile: Dockerfile
+    container_name: mlai-pixelfed
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./digital-drive-license/.env
+    volumes:
+      - pixelfed_storage:/var/www/html/storage
+      - pixelfed_bootstrap:/var/www/html/bootstrap/cache
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mlai-network
+
 networks:
   mlai-network:
     driver: bridge
 
 volumes:
   postgres_data:
+  redis_data:
   n8n_data:
+  pixelfed_storage:
+  pixelfed_bootstrap:
