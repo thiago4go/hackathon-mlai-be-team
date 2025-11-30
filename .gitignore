@@ -1,0 +1,17 @@
+# Environment files
+digital-drive-license/.env
+
+# Docker volumes
+postgres_data/
+redis_data/
+n8n_data/
+pixelfed_storage/
+pixelfed_bootstrap/
+
+# Logs
+*.log
+/tmp/
+
+# OS
+.DS_Store
+Thumbs.db
