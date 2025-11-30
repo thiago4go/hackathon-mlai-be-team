@@ -1,6 +1,9 @@
 # Environment files
 digital-drive-license/.env
 
+# Node
+node_modules/
+
 # Docker volumes
 postgres_data/
 redis_data/
