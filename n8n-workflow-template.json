@@ -1,0 +1,173 @@
+{
+  "name": "Chore Detection MVP",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 30
+            }
+          ]
+        }
+      },
+      "name": "Every 30 seconds",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://pixelfed/api/v1/timelines/home",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "name": "Get Pixelfed Timeline",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.account.username}}",
+              "operation": "equals",
+              "value2": "child"
+            }
+          ]
+        }
+      },
+      "name": "Filter Child Posts",
+      "type": "n8n-nodes-base.if",
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "text": "=Analyze this image and determine if it shows a completed chore (cleaning, organizing, helping). Image caption: {{$json.content}}",
+        "options": {
+          "maxTokens": 150
+        }
+      },
+      "name": "OpenAI Vision Analysis",
+      "type": "n8n-nodes-base.openAi",
+      "position": [850, 250]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.choices[0].message.content}}",
+              "operation": "contains",
+              "value2": "chore"
+            }
+          ]
+        }
+      },
+      "name": "Is Valid Chore?",
+      "type": "n8n-nodes-base.if",
+      "position": [1050, 250]
+    },
+    {
+      "parameters": {
+        "url": "=http://pixelfed/api/v1/statuses/{{$node[\"Get Pixelfed Timeline\"].json.id}}/comment",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "🌟 Great job! That looks amazing! +50 XP!"
+            }
+          ]
+        }
+      },
+      "name": "Post AI Comment",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1250, 200]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=UPDATE users SET xp = xp + 50 WHERE username = '{{$node[\"Get Pixelfed Timeline\"].json.account.username}}'",
+        "options": {}
+      },
+      "name": "Update XP",
+      "type": "n8n-nodes-base.postgres",
+      "position": [1450, 200]
+    }
+  ],
+  "connections": {
+    "Every 30 seconds": {
+      "main": [
+        [
+          {
+            "node": "Get Pixelfed Timeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pixelfed Timeline": {
+      "main": [
+        [
+          {
+            "node": "Filter Child Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Child Posts": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Vision Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Vision Analysis": {
+      "main": [
+        [
+          {
+            "node": "Is Valid Chore?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Valid Chore?": {
+      "main": [
+        [
+          {
+            "node": "Post AI Comment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post AI Comment": {
+      "main": [
+        [
+          {
+            "node": "Update XP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

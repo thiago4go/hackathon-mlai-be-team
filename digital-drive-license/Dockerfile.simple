@@ -1,0 +1,67 @@
+FROM php:8.3-apache
+
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    libzip-dev \
+    libffi-dev \
+    libicu-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libwebp-dev \
+    libmagickwand-dev \
+    ffmpeg \
+    optipng \
+    pngquant \
+    jpegoptim \
+    gifsicle \
+    zip \
+    unzip \
+    git \
+    openssl \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install pdo pdo_pgsql pgsql zip bcmath intl pcntl ffi gd exif \
+    && pecl install redis imagick \
+    && docker-php-ext-enable redis imagick \
+    && a2enmod rewrite ssl
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+COPY . .
+
+RUN mkdir -p storage bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
+
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/ssl/private/pixelfed.key \
+    -out /etc/ssl/certs/pixelfed.crt \
+    -subj "/C=BR/ST=SP/L=SaoPaulo/O=Pixelfed/CN=localhost"
+
+RUN echo '<VirtualHost *:443>\n\
+    ServerAdmin webmaster@localhost\n\
+    DocumentRoot /var/www/html/public\n\
+    SSLEngine on\n\
+    SSLCertificateFile /etc/ssl/certs/pixelfed.crt\n\
+    SSLCertificateKeyFile /etc/ssl/private/pixelfed.key\n\
+    <Directory /var/www/html/public>\n\
+        Options Indexes FollowSymLinks\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
+    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
+</VirtualHost>' > /etc/apache2/sites-available/default-ssl.conf \
+    && a2ensite default-ssl
+
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/000-default.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+EXPOSE 80 443
+
+CMD ["apache2-foreground"]
