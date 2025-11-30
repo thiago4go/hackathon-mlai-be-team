@@ -1,0 +1,171 @@
+{
+  "name": "Hype-Man Complete Flow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chore-webhook",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "chore-detection"
+    },
+    {
+      "parameters": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Analyze this chore post:\\n\\nCaption: {{ $json.body.caption }}\\n\\nIs this a valid chore? Respond with:\\n- VALID: [encouraging message] +XP [30-100]\\n- INVALID: [gentle message]\"\n    }\n  ],\n  \"max_tokens\": 200\n}",
+        "options": {}
+      },
+      "id": "openai-1",
+      "name": "OpenAI Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [460, 300],
+      "credentials": {
+        "openAiApi": {
+          "id": "2",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.choices[0].message.content }}",
+              "rightValue": "VALID",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ]
+        }
+      },
+      "id": "if-1",
+      "name": "Is Valid Chore?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "=http://mlai-pixelfed/api/v1/statuses",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "={{ $node['OpenAI Analysis'].json.choices[0].message.content.replace('VALID: ', '') }}"
+            },
+            {
+              "name": "in_reply_to_id",
+              "value": "={{ $node['Webhook'].json.body.status_id }}"
+            }
+          ]
+        }
+      },
+      "id": "comment-1",
+      "name": "Post AI Comment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [900, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1",
+          "name": "Pixelfed Agent Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO user_gamification (user_id, tokens, xp, created_at, updated_at)\nVALUES ({{ $node['Webhook'].json.body.user_id }}, 50, 50, NOW(), NOW())\nON CONFLICT (user_id) DO UPDATE SET\n  xp = user_gamification.xp + 50,\n  tokens = user_gamification.tokens + 50,\n  updated_at = NOW()\nRETURNING xp, tokens;",
+        "options": {}
+      },
+      "id": "db-1",
+      "name": "Update Gamification",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1120, 200],
+      "credentials": {
+        "postgres": {
+          "id": "3",
+          "name": "Pixelfed DB"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Analysis": {
+      "main": [
+        [
+          {
+            "node": "Is Valid Chore?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Valid Chore?": {
+      "main": [
+        [
+          {
+            "node": "Post AI Comment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post AI Comment": {
+      "main": [
+        [
+          {
+            "node": "Update Gamification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-01T00:38:00.000Z",
+  "versionId": "1"
+}
