@@ -5,6 +5,7 @@ namespace App;
 use Auth, Cache, DB, Storage;
 use App\Util\Lexer\PrettyNumber;
 use App\HasSnowflakePrimary;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\{Model, SoftDeletes};
 use App\Services\FollowerService;
 use App\Models\ProfileAlias;
@@ -31,7 +32,7 @@ use App\Avatar;
  */
 class Profile extends Model
 {
-	use HasSnowflakePrimary, SoftDeletes;
+	use HasFactory, HasSnowflakePrimary, SoftDeletes;
 
 	/**
 	 * Indicates if the IDs are auto-incrementing.

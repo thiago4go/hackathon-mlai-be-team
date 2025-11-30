@@ -57,7 +57,7 @@ services:
       PHP_POST_MAX_SIZE: "500M"
       PHP_UPLOAD_MAX_FILE_SIZE: "500M"
       PHP_OPCACHE_ENABLE: "1"
-      
+
       # Laravel Auto-run Configuration
       AUTORUN_ENABLED: "true"
       AUTORUN_LARAVEL_MIGRATION: "true"
@@ -71,6 +71,7 @@ services:
     volumes:
       - ./storage:/var/www/html/storage
       - ./bootstrap/cache:/var/www/html/bootstrap/cache
+      - ./tests:/var/www/html/tests
     depends_on:
       - db
       - redis
