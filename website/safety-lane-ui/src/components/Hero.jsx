@@ -59,27 +59,6 @@ export default function Hero() {
                                     alt="Digital Driver's License Interface demonstration"
                                     className="w-full h-auto rounded-2xl object-cover"
                                 />
-
-                                {/* Floating UI Elements */}
-                                <div className="absolute -right-8 top-12 glass-panel p-4 rounded-2xl shadow-lg flex items-center gap-3 animate-pulse-slow max-w-[200px]">
-                                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-                                        <span className="material-symbols-outlined">check_circle</span>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-slate-500 font-medium">Digital License</p>
-                                        <p className="text-sm font-bold text-slate-900">Approved: L-Plate</p>
-                                    </div>
-                                </div>
-
-                                <div className="absolute -left-6 bottom-20 glass-panel p-4 rounded-2xl shadow-lg flex items-center gap-3 max-w-[220px]">
-                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                                        <span className="material-symbols-outlined">timer</span>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-slate-500 font-medium">Screen Time Earned</p>
-                                        <p className="text-sm font-bold text-slate-900">+45 Mins (Room Cleaned)</p>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
