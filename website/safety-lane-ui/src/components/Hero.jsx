@@ -54,11 +54,39 @@ export default function Hero() {
                         {/* Main Floating Card */}
                         <div className="relative z-20 w-full max-w-md animate-float">
                             <div className="glass-panel rounded-3xl p-2 shadow-2xl overflow-hidden">
-                                <img
-                                    src="https://storage.projects.hitl.cloud/storage/v1/object/public/assets/images/ddl-hero-vid.gif"
-                                    alt="Digital Driver's License Interface demonstration"
+                                <video
+                                    autoPlay
+                                    loop
+                                    muted
+                                    playsInline
                                     className="w-full h-auto rounded-2xl object-cover"
-                                />
+                                    poster="https://placehold.co/600x400/e2e8f0/1e293b?text=Digital+License+Interface"
+                                    aria-label="Digital Driver's License Interface demonstration"
+                                >
+                                    <source src="http://10.0.19.224:8000/storage/v1/object/public/assets/videos/ddl-commercial.mp4" type="video/mp4" />
+                                    Your browser does not support the video tag.
+                                </video>
+
+                                {/* Floating UI Elements */}
+                                <div className="absolute -right-8 top-12 glass-panel p-4 rounded-2xl shadow-lg flex items-center gap-3 animate-pulse-slow max-w-[200px]">
+                                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                        <span className="material-symbols-outlined">check_circle</span>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-500 font-medium">Digital License</p>
+                                        <p className="text-sm font-bold text-slate-900">Approved: L-Plate</p>
+                                    </div>
+                                </div>
+
+                                <div className="absolute -left-6 bottom-20 glass-panel p-4 rounded-2xl shadow-lg flex items-center gap-3 max-w-[220px]">
+                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                        <span className="material-symbols-outlined">timer</span>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-500 font-medium">Screen Time Earned</p>
+                                        <p className="text-sm font-bold text-slate-900">+45 Mins (Room Cleaned)</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
