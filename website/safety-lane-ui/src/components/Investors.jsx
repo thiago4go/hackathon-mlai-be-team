@@ -41,9 +41,14 @@ export default function Investors() {
                                 </div>
                             </div>
                         </div>
-                        <button className="mt-8 text-safety-600 font-bold flex items-center gap-2 hover:underline">
+                        <a 
+                            href="https://storage.projects.hitl.cloud/storage/v1/object/public/assets/documents/pitch-deck.pdf"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-8 text-safety-600 font-bold flex items-center gap-2 hover:underline inline-flex"
+                        >
                             Download Pitch Deck <span className="material-symbols-outlined">download</span>
-                        </button>
+                        </a>
                     </div>
 
                     <div className="relative h-full min-h-[400px] bg-slate-900 rounded-3xl p-8 text-white overflow-hidden flex flex-col justify-between">
