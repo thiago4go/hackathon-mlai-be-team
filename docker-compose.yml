@@ -71,6 +71,18 @@ services:
     networks:
       - mlai-network
 
+  # React Frontend
+  frontend:
+    build:
+      context: ./website/safety-lane-ui
+      dockerfile: Dockerfile
+    container_name: mlai-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - mlai-network
+
 networks:
   mlai-network:
     driver: bridge
