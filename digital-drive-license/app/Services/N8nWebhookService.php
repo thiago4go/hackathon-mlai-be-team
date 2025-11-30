@@ -21,7 +21,7 @@ class N8nWebhookService
             Http::post($webhookUrl, [
                 'caption' => $status->caption,
                 'image_url' => $media ? $media->url() : null,
-                'user_id' => $status->profile_id,
+                'user_id' => $status->profile->user_id ?? $status->profile_id,
                 'status_id' => $status->id,
                 'username' => $status->profile->username ?? 'unknown'
             ]);
