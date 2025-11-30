@@ -44,4 +44,8 @@ return [
     'resend' => [
         'key' => env('RESEND_KEY'),
     ],
+
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+    ],
 ];
