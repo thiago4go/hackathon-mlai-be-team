@@ -53,11 +53,17 @@ export default function Hero() {
                         {/* Main Floating Card */}
                         <div className="relative z-20 w-full max-w-md animate-float">
                             <div className="glass-panel rounded-3xl p-2 shadow-2xl overflow-hidden">
-                                <img
-                                    alt="Digital Driver's License Interface"
+                                <video
+                                    autoPlay
+                                    loop
+                                    muted
+                                    playsInline
                                     className="w-full h-auto rounded-2xl object-cover"
-                                    src="https://placehold.co/600x400/e2e8f0/1e293b?text=Digital+License+Interface"
-                                />
+                                    poster="https://placehold.co/600x400/e2e8f0/1e293b?text=Digital+License+Interface"
+                                >
+                                    <source src="http://10.0.19.224:8000/storage/v1/object/public/assets/videos/ddl-commercial.mp4" type="video/mp4" />
+                                    Your browser does not support the video tag.
+                                </video>
 
                                 {/* Floating UI Elements */}
                                 <div className="absolute -right-8 top-12 glass-panel p-4 rounded-2xl shadow-lg flex items-center gap-3 animate-pulse-slow max-w-[200px]">
