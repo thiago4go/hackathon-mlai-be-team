@@ -59,10 +59,11 @@ export default function Hero() {
                                     loop
                                     muted
                                     playsInline
-                                    controls
                                     className="w-full h-auto rounded-2xl object-cover"
+                                    poster="https://placehold.co/600x400/e2e8f0/1e293b?text=Digital+License+Interface"
+                                    aria-label="Digital Driver's License Interface demonstration"
                                 >
-                                    <source src="https://storage.projects.hitl.cloud/storage/v1/object/public/assets/videos/ddl-commercial.mp4" type="video/mp4" />
+                                    <source src="http://10.0.19.224:8000/storage/v1/object/public/assets/videos/ddl-commercial.mp4" type="video/mp4" />
                                     Your browser does not support the video tag.
                                 </video>
 
