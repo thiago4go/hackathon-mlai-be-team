@@ -79,7 +79,7 @@ services:
     container_name: mlai-frontend
     restart: unless-stopped
     ports:
-      - "3000:80"
+      - "3003:80"
     networks:
       - mlai-network
 
