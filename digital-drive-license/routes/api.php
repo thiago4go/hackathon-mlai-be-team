@@ -23,13 +23,25 @@ Route::get('storage/m/_v2/{pid}/{mhash}/{uhash}/{f}', 'MediaController@fallbackR
 
 Route::post('api/ai/comment', function (Illuminate\Http\Request $request) {
     $validated = $request->validate([
-        'profile_id' => 'required|integer',
-        'status_id' => 'required|integer',
+        'profile_id' => 'required',
+        'status_id' => 'required',
         'comment' => 'required|string'
     ]);
+    
+    $statusId = $validated['status_id'];
+    $status = \App\Status::where('id', 'like', substr($statusId, 0, -2) . '%')->orderBy('created_at', 'desc')->first();
+    
+    if (!$status) {
+        $status = \App\Status::find($statusId);
+    }
+    
+    if (!$status) {
+        return response()->json(['success' => false, 'error' => 'Status not found'], 400);
+    }
+    
     $comment = \App\Services\AiCommentService::createComment(
         $validated['profile_id'],
-        $validated['status_id'],
+        $status->id,
         $validated['comment']
     );
     return $comment ? response()->json(['success' => true, 'comment_id' => $comment->id]) : response()->json(['success' => false], 400);
