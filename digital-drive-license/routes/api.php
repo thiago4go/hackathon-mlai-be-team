@@ -21,6 +21,20 @@ Route::post('api/auth/app-code-verify', 'AppRegisterController@verifyCode')->mid
 Route::post('api/auth/onboarding', 'AppRegisterController@onboarding')->middleware('throttle:app-code-verify');
 Route::get('storage/m/_v2/{pid}/{mhash}/{uhash}/{f}', 'MediaController@fallbackRedirect');
 
+Route::post('api/ai/comment', function (Illuminate\Http\Request $request) {
+    $validated = $request->validate([
+        'profile_id' => 'required|integer',
+        'status_id' => 'required|integer',
+        'comment' => 'required|string'
+    ]);
+    $comment = \App\Services\AiCommentService::createComment(
+        $validated['profile_id'],
+        $validated['status_id'],
+        $validated['comment']
+    );
+    return $comment ? response()->json(['success' => true, 'comment_id' => $comment->id]) : response()->json(['success' => false], 400);
+});
+
 Route::prefix('api/v0/groups')->middleware($middleware)->group(function () {
     Route::get('config', 'Groups\GroupsApiController@getConfig');
     Route::post('permission/create', 'Groups\CreateGroupsController@checkCreatePermission');

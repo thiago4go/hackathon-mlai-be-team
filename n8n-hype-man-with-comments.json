@@ -1,0 +1,186 @@
+{
+  "name": "Hype-Man Agent with Comments",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chore-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "chore-webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are The Hype-Man, an enthusiastic AI agent for a digital driver's license gamification system. Analyze if the post describes a valid chore or helpful task. If valid, respond with: VALID: [encouraging message] +XP [30-100 based on effort]. If not valid, respond with: INVALID: [friendly message explaining why].\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Caption: {{ $json.body.caption }}\\nUsername: {{ $json.body.username }}\"\n    }\n  ],\n  \"temperature\": 0.7\n}",
+        "options": {}
+      },
+      "id": "openai-node",
+      "name": "OpenAI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.choices[0].message.content }}",
+              "operation": "contains",
+              "value2": "VALID"
+            }
+          ]
+        }
+      },
+      "id": "if-node",
+      "name": "Check Valid",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO user_gamification (user_id, xp, tokens, license_level, safety_score, created_at, updated_at)\nVALUES (\n  {{ $('Webhook').item.json.body.user_id }},\n  {{ $('OpenAI').item.json.choices[0].message.content.match(/\\+XP (\\d+)/)?.[1] || 50 }},\n  {{ $('OpenAI').item.json.choices[0].message.content.match(/\\+XP (\\d+)/)?.[1] || 50 }},\n  'L',\n  100,\n  NOW(),\n  NOW()\n)\nON CONFLICT (user_id) DO UPDATE SET\n  xp = user_gamification.xp + EXCLUDED.xp,\n  tokens = user_gamification.tokens + EXCLUDED.tokens,\n  updated_at = NOW()\nRETURNING *;"
+      },
+      "id": "update-gamification",
+      "name": "Update Gamification",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [900, 200],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "PostgreSQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://mlai-pixelfed/api/ai/comment",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"profile_id\": 900650757850947585,\n  \"status_id\": {{ $('Webhook').item.json.body.status_id }},\n  \"comment\": \"{{ $('OpenAI').item.json.choices[0].message.content.replace(/\"/g, '\\\\\"') }}\"\n}",
+        "options": {}
+      },
+      "id": "post-comment",
+      "name": "Post Comment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"ai_response\": $('OpenAI').item.json.choices[0].message.content, \"xp_added\": $('Update Gamification').item.json[0].xp } }}"
+      },
+      "id": "response-node",
+      "name": "Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Check Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Valid": {
+      "main": [
+        [
+          {
+            "node": "Update Gamification",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post Comment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Gamification": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Comment": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-01T01:43:00.000Z",
+  "versionId": "1"
+}
