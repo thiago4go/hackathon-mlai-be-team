@@ -1,0 +1,8 @@
+# Digital Driver's License - Robots.txt
+# https://digitaldriverlicence.com
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://digitaldriverlicence.com/sitemap.xml
