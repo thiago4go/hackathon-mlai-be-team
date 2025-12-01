@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- 
+    Digital Driver's License Sitemap
+    Website: https://digitaldriverlicence.com
+    
+    This sitemap covers:
+    - Main marketing website (digitaldriverlicence.com)
+    - App platform (app.digitaldriverlicence.com)
+    
+    SEO Target Keywords:
+    - digital safety for kids Australia
+    - preparing kids for social media
+    - digital driver's license
+  -->
+
+  <!-- Main Marketing Website - Home Page -->
+  <url>
+    <loc>https://digitaldriverlicence.com/</loc>
+    <lastmod>2024-12-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- App Platform - Main Entry -->
+  <url>
+    <loc>https://app.digitaldriverlicence.com/</loc>
+    <lastmod>2024-12-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- About Page -->
+  <url>
+    <loc>https://app.digitaldriverlicence.com/site/about</loc>
+    <lastmod>2024-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Terms of Service -->
+  <url>
+    <loc>https://app.digitaldriverlicence.com/site/terms</loc>
+    <lastmod>2024-12-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Privacy Policy -->
+  <url>
+    <loc>https://app.digitaldriverlicence.com/site/privacy</loc>
+    <lastmod>2024-12-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Help/Knowledge Base -->
+  <url>
+    <loc>https://app.digitaldriverlicence.com/site/help</loc>
+    <lastmod>2024-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Parental Controls Help -->
+  <url>
+    <loc>https://app.digitaldriverlicence.com/site/kb/parental-controls</loc>
+    <lastmod>2024-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Safety Tips -->
+  <url>
+    <loc>https://app.digitaldriverlicence.com/site/kb/safety-tips</loc>
+    <lastmod>2024-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Contact Page -->
+  <url>
+    <loc>https://app.digitaldriverlicence.com/site/contact</loc>
+    <lastmod>2024-12-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>
