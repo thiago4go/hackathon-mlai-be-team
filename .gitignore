@@ -1,6 +1,9 @@
 # Environment files
 digital-drive-license/.env
 
+# Context (private notes)
+.context/
+
 # Node
 node_modules/
 
