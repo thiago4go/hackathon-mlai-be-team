@@ -1,0 +1,157 @@
+{
+  "name": "Hype-Man Agent - Fixed",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chore-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "chore-webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-4o-mini"
+            },
+            {
+              "name": "messages",
+              "value": "={{ [{ \"role\": \"system\", \"content\": \"You are The Hype-Man. Analyze if the post describes a valid chore. If valid, respond: VALID: [encouraging message] +XP [30-100]. If not: INVALID: [friendly message].\" }, { \"role\": \"user\", \"content\": \"Caption: \" + $json.body.caption + \"\\nUsername: \" + $json.body.username }] }}"
+            },
+            {
+              "name": "temperature",
+              "value": "0.7"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "openai",
+      "name": "OpenAI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.choices[0].message.content }}",
+              "operation": "contains",
+              "value2": "VALID"
+            }
+          ]
+        }
+      },
+      "id": "condition",
+      "name": "Is Valid Chore?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://mlai-pixelfed/api/ai/comment",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "profile_id",
+              "value": "900650757850947585"
+            },
+            {
+              "name": "status_id",
+              "value": "={{ $('Webhook').item.json.body.status_id }}"
+            },
+            {
+              "name": "comment",
+              "value": "={{ $('OpenAI').item.json.choices[0].message.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "comment",
+      "name": "Post Comment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ \"UPDATE user_gamification SET xp = xp + \" + $('OpenAI').item.json.choices[0].message.content.match(/\\+XP (\\d+)/)?.[1] + \", tokens = tokens + \" + $('OpenAI').item.json.choices[0].message.content.match(/\\+XP (\\d+)/)?.[1] + \", updated_at = NOW() WHERE user_id = \" + $('Webhook').item.json.body.user_id }}",
+        "options": {}
+      },
+      "id": "updatexp",
+      "name": "Update XP",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [900, 400],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "PostgreSQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"xp\": $('Update XP').item.json.xp, \"tokens\": $('Update XP').item.json.tokens } }}"
+      },
+      "id": "response",
+      "name": "Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "OpenAI", "type": "main", "index": 0 }]]
+    },
+    "OpenAI": {
+      "main": [[{ "node": "Is Valid Chore?", "type": "main", "index": 0 }]]
+    },
+    "Is Valid Chore?": {
+      "main": [
+        [
+          { "node": "Post Comment", "type": "main", "index": 0 },
+          { "node": "Update XP", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Post Comment": {
+      "main": [[{ "node": "Response", "type": "main", "index": 0 }]]
+    },
+    "Update XP": {
+      "main": [[{ "node": "Response", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-02T00:50:00.000Z",
+  "versionId": "1"
+}
