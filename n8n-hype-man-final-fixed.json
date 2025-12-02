@@ -79,7 +79,10 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "=INSERT INTO statuses (profile_id, caption, rendered, scope, visibility, in_reply_to_id, in_reply_to_profile_id, type, local, created_at, updated_at)\nVALUES (\n  900650757850947585,\n  '{{ $('OpenAI').item.json.choices[0].message.content.replace(/'/g, \"''\") }}',\n  '{{ $('OpenAI').item.json.choices[0].message.content.replace(/'/g, \"''\") }}',\n  'public',\n  'public',\n  '{{ $('Webhook').item.json.body.status_id }}',\n  (SELECT profile_id FROM statuses WHERE id = '{{ $('Webhook').item.json.body.status_id }}'),\n  'reply',\n  true,\n  NOW(),\n  NOW()\n)\nRETURNING id;"
+        "query": "INSERT INTO statuses (profile_id, caption, rendered, scope, visibility, in_reply_to_id, in_reply_to_profile_id, type, local, created_at, updated_at)\nVALUES (\n  $1,\n  $2,\n  $2,\n  'public',\n  'public',\n  $3,\n  (SELECT profile_id FROM statuses WHERE id = $3),\n  'reply',\n  true,\n  NOW(),\n  NOW()\n)\nRETURNING id;",
+        "options": {
+          "queryParams": "={{ [$('Webhook').item.json.body.ai_profile_id || $env.AI_AGENT_PROFILE_ID, $('OpenAI').item.json.choices[0].message.content, $('Webhook').item.json.body.status_id] }}"
+        }
       },
       "id": "post-comment",
       "name": "Post Comment",

@@ -21,5 +21,5 @@ Route::post('/ai/comment', function (Request $request) {
         return response()->json(['success' => true, 'comment_id' => $comment->id]);
     }
 
-    return response()->json(['success' => false], 400);
-});
+    return response()->json(['success' => false, 'error' => 'Failed to create comment'], 400);
+})->middleware('auth:sanctum');

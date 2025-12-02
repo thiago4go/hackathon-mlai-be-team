@@ -82,7 +82,10 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "=INSERT INTO comments (profile_id, user_id, status_id, comment, is_remote, created_at, updated_at)\nVALUES (\n  900650757850947585,\n  3,\n  {{ $('Webhook').item.json.body.status_id }},\n  '{{ $('OpenAI').item.json.choices[0].message.content.replace(/'/g, \"''\") }}',\n  false,\n  NOW(),\n  NOW()\n)\nRETURNING *;"
+        "query": "INSERT INTO comments (profile_id, user_id, status_id, comment, is_remote, created_at, updated_at)\nVALUES ($1, $2, $3, $4, false, NOW(), NOW())\nRETURNING *;",
+        "options": {
+          "queryParams": "={{ [$('Webhook').item.json.body.ai_profile_id || $env.AI_AGENT_PROFILE_ID, $('Webhook').item.json.body.ai_user_id || $env.AI_AGENT_USER_ID || 3, $('Webhook').item.json.body.status_id, $('OpenAI').item.json.choices[0].message.content] }}"
+        }
       },
       "id": "insert-comment",
       "name": "Insert Comment",

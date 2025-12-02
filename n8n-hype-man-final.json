@@ -70,7 +70,7 @@
         "method": "POST",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"status\": \"{{ $node['OpenAI Analysis'].json.choices[0].message.content.replace('VALID: ', '') }}\",\n  \"in_reply_to_id\": \"{{ $node['Webhook'].json.body.status_id }}\"\n}",
+        "jsonBody": "={{ JSON.stringify({ status: $('OpenAI Analysis').item.json.choices[0].message.content.replace('VALID: ', ''), in_reply_to_id: $('Webhook').item.json.body.status_id }) }}",
         "options": {}
       },
       "id": "comment-1",

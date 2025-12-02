@@ -91,7 +91,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"profile_id\": 900650757850947585,\n  \"status_id\": {{ $('Webhook').item.json.body.status_id }},\n  \"comment\": \"{{ $('OpenAI').item.json.choices[0].message.content.replace(/\"/g, '\\\\\"') }}\"\n}",
+        "jsonBody": "={{ JSON.stringify({ profile_id: $('Webhook').item.json.body.ai_profile_id || $env.AI_AGENT_PROFILE_ID, status_id: $('Webhook').item.json.body.status_id, comment: $('OpenAI').item.json.choices[0].message.content }) }}",
         "options": {}
       },
       "id": "post-comment",

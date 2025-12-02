@@ -3,14 +3,24 @@
 namespace App\Services;
 
 use App\Status;
+use App\Profile;
+use Illuminate\Support\Facades\Log;
 
 class AiCommentService
 {
     public static function createComment($profileId, $statusId, $commentText)
     {
+        // Validate that the profile exists
+        $profile = Profile::find($profileId);
+        if (!$profile) {
+            Log::warning('AiCommentService: Profile not found', ['profile_id' => $profileId]);
+            return null;
+        }
+        
         $originalStatus = Status::find($statusId);
         
         if (!$originalStatus) {
+            Log::warning('AiCommentService: Original status not found', ['status_id' => $statusId]);
             return null;
         }
 
@@ -24,7 +34,17 @@ class AiCommentService
         $comment->in_reply_to_profile_id = $originalStatus->profile_id;
         $comment->type = 'reply';
         $comment->local = true;
-        $comment->save();
+        
+        try {
+            $comment->save();
+        } catch (\Exception $e) {
+            Log::error('AiCommentService: Failed to save comment', [
+                'error' => $e->getMessage(),
+                'profile_id' => $profileId,
+                'status_id' => $statusId
+            ]);
+            return null;
+        }
 
         return $comment;
     }

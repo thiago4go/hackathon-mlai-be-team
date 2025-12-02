@@ -29,14 +29,22 @@ Route::post('api/ai/comment', function (Illuminate\Http\Request $request) {
     ]);
     
     $statusId = $validated['status_id'];
-    $status = \App\Status::where('id', 'like', substr($statusId, 0, -2) . '%')->orderBy('created_at', 'desc')->first();
     
-    if (!$status) {
-        $status = \App\Status::find($statusId);
+    // Validate status ID format (alphanumeric, 1-20 chars)
+    if (!preg_match('/^[a-zA-Z0-9_-]{1,20}$/', $statusId)) {
+        return response()->json(['success' => false, 'error' => 'Invalid status_id format', 'status_id' => $statusId], 400);
+    }
+    
+    $status = \App\Status::find($statusId);
+    
+    // If not found and business logic requires, try prefix lookup (safer)
+    if (!$status && strlen($statusId) > 2) {
+        $prefix = substr($statusId, 0, -2);
+        $status = \App\Status::where('id', 'like', $prefix . '%')->orderBy('created_at', 'desc')->first();
     }
     
     if (!$status) {
-        return response()->json(['success' => false, 'error' => 'Status not found'], 400);
+        return response()->json(['success' => false, 'error' => 'Status not found', 'status_id' => $statusId], 400);
     }
     
     $comment = \App\Services\AiCommentService::createComment(
@@ -44,8 +52,10 @@ Route::post('api/ai/comment', function (Illuminate\Http\Request $request) {
         $status->id,
         $validated['comment']
     );
-    return $comment ? response()->json(['success' => true, 'comment_id' => $comment->id]) : response()->json(['success' => false], 400);
-});
+    return $comment 
+        ? response()->json(['success' => true, 'comment_id' => $comment->id]) 
+        : response()->json(['success' => false, 'error' => 'Failed to create comment'], 400);
+})->middleware(['auth:api', 'validemail']);
 
 Route::prefix('api/v0/groups')->middleware($middleware)->group(function () {
     Route::get('config', 'Groups\GroupsApiController@getConfig');

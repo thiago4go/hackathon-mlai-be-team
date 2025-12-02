@@ -65,8 +65,10 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "=INSERT INTO statuses (profile_id, caption, visibility, scope, created_at, updated_at, type, local, in_reply_to_id, in_reply_to_profile_id)\nSELECT \n  (SELECT id FROM profiles WHERE user_id = 3 LIMIT 1),\n  '{{ $node[\"OpenAI Analysis\"].json.choices[0].message.content.replace(\"VALID: \", \"\") }}',\n  'public',\n  'public',\n  NOW(),\n  NOW(),\n  'text',\n  true,\n  {{ $node[\"Webhook\"].json.body.status_id }},\n  (SELECT profile_id FROM statuses WHERE id = {{ $node[\"Webhook\"].json.body.status_id }})\nRETURNING id;",
-        "options": {}
+        "query": "INSERT INTO statuses (profile_id, caption, visibility, scope, created_at, updated_at, type, local, in_reply_to_id, in_reply_to_profile_id)\nSELECT \n  (SELECT id FROM profiles WHERE user_id = $1 LIMIT 1),\n  $2,\n  'public',\n  'public',\n  NOW(),\n  NOW(),\n  'text',\n  true,\n  $3,\n  (SELECT profile_id FROM statuses WHERE id = $3)\nRETURNING id;",
+        "options": {
+          "queryParams": "={{ [$('Webhook').item.json.body.ai_user_id || $env.AI_AGENT_USER_ID || 3, $('OpenAI Analysis').item.json.choices[0].message.content.replace('VALID: ', ''), $('Webhook').item.json.body.status_id] }}"
+        }
       },
       "id": "comment-1",
       "name": "Insert Comment",

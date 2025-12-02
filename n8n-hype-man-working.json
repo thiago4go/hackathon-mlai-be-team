@@ -65,8 +65,10 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "=INSERT INTO comments (profile_id, user_id, status_id, comment, is_remote, created_at, updated_at)\nVALUES (\n  (SELECT id FROM profiles WHERE user_id = 3 LIMIT 1),\n  3,\n  {{ $node[\"Webhook\"].json.body.status_id }},\n  '{{ $node[\"OpenAI Analysis\"].json.choices[0].message.content.replace(\"VALID: \", \"\").replace(\"'\", \"''\") }}',\n  false,\n  NOW(),\n  NOW()\n)\nRETURNING id;",
-        "options": {}
+        "query": "INSERT INTO comments (profile_id, user_id, status_id, comment, is_remote, created_at, updated_at)\nVALUES (\n  (SELECT id FROM profiles WHERE user_id = $1 LIMIT 1),\n  $1,\n  $2,\n  $3,\n  false,\n  NOW(),\n  NOW()\n)\nRETURNING id;",
+        "options": {
+          "queryParams": "={{ [$('Webhook').item.json.body.ai_user_id || $env.AI_AGENT_USER_ID || 3, $('Webhook').item.json.body.status_id, $('OpenAI Analysis').item.json.choices[0].message.content.replace('VALID: ', '')] }}"
+        }
       },
       "id": "comment-1",
       "name": "Insert Comment",
