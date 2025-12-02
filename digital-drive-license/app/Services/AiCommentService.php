@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Status;
 use App\Profile;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 
 class AiCommentService
@@ -37,8 +38,8 @@ class AiCommentService
         
         try {
             $comment->save();
-        } catch (\Exception $e) {
-            Log::error('AiCommentService: Failed to save comment', [
+        } catch (QueryException $e) {
+            Log::error('AiCommentService: Database error when saving comment', [
                 'error' => $e->getMessage(),
                 'profile_id' => $profileId,
                 'status_id' => $statusId

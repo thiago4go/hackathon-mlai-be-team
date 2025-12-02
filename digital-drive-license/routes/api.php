@@ -30,8 +30,8 @@ Route::post('api/ai/comment', function (Illuminate\Http\Request $request) {
     
     $statusId = $validated['status_id'];
     
-    // Validate status ID format (alphanumeric, 1-20 chars)
-    if (!preg_match('/^[a-zA-Z0-9_-]{1,20}$/', $statusId)) {
+    // Validate status ID format (numeric only)
+    if (!preg_match('/^[0-9]+$/', $statusId)) {
         return response()->json(['success' => false, 'error' => 'Invalid status_id format', 'status_id' => $statusId], 400);
     }
     
