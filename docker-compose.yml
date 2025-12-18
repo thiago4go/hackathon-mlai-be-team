@@ -60,7 +60,7 @@ services:
     restart: unless-stopped
     ports:
       - "8080:80"
-      - "8443:443"
+      - "8444:443"
     environment:
       - QUEUE_DRIVER=sync
     env_file:
